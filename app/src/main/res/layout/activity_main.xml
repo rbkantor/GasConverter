@@ -42,12 +42,7 @@
         >
         <TableRow>
 
-     <Button
-            android:layout_width="match_parent"
-            android:layout_height="fill_parent"
-            android:text="+"
-            android:onClick="BtnPlsClick"
-            android:id="@+id/buttonPlus" />
+
 
        <Button
             android:layout_width="match_parent"
@@ -55,6 +50,15 @@
                 android:text="-"
                 android:onClick="BtnMnsClick"
                 android:id="@+id/buttonMinus" />
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="fill_parent"
+                android:text="+"
+                android:onClick="BtnPlsClick"
+                android:id="@+id/buttonPlus" />
+
+
         </TableRow>
         </TableLayout>
 
