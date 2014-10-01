@@ -1,21 +1,35 @@
 package com.reubenk.gasconverter;
 
 import android.app.Activity;
-import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+
+import java.net.URL;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 public class MainActivity extends Activity {
 
-    double exchangeRateUSCan = 1.1196;
+    private static final String LOG_TAG = "com.reubenk.gasconverter";
+    double exchangeRateUSCan = 1.1;
     double literGallon = 3.7854;
     TextView tv;
     EditText et;
+    TextView exchangeRate;
+    MyTask mt;
 
 
     @Override
@@ -25,8 +39,10 @@ public class MainActivity extends Activity {
 
         tv = (TextView) findViewById(R.id.resultView);
         et = (EditText) findViewById(R.id.editText);
+        exchangeRate = (TextView) findViewById(R.id.exchangeRate);
 
         et.setText("1.30");
+        exchangeRate.setText(String.valueOf(exchangeRateUSCan));
     }
 
 
@@ -84,10 +100,77 @@ public class MainActivity extends Activity {
         }
     }
 
-    public void quitBtnClick(View v) {
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_HOME);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
+    public void BtnPlsClick(View v)
+    {
+        double price = Double.parseDouble(et.getText().toString());
+        price += 0.01;
+        et.setText(String.format("%.2f", price));
     }
+
+    public void BtnMnsClick(View v)
+    {
+        double price = Double.parseDouble(et.getText().toString());
+        price -= 0.01;
+        et.setText(String.format("%.2f", price));
+    }
+
+    public void exchangeBtnClick(View v) {
+        //   Intent intent = new Intent(Intent.ACTION_MAIN);
+        //intent.addCategory(Intent.CATEGORY_HOME);
+        //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        //startActivity(intent);
+        mt = new MyTask();
+        mt.execute();
+    }
+
+    class MyTask extends AsyncTask<Void, Void, Void> {
+
+        String exchangeRateValue;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            Toast.makeText(getApplicationContext(), "Updating...", Toast.LENGTH_SHORT).show();
+
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                    URL url = new URL("http://www.bankofcanada.ca/stats/assets/xml/noon-five-day.xml");
+
+                    Log.i(LOG_TAG, "bb");
+                    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+                    DocumentBuilder db = dbf.newDocumentBuilder();
+                Log.i(LOG_TAG, "bb1e");
+                    Document doc = db.parse(new InputSource(url.openStream()));
+                Log.i(LOG_TAG, "bb2");
+                    doc.getDocumentElement().normalize();
+                Log.i(LOG_TAG, "bb3");
+
+                    NodeList nodeList = doc.getElementsByTagName("Observation_data");
+                Log.i(LOG_TAG, "length = " + Integer.toString(nodeList.getLength()));
+
+                    Element el = (Element)nodeList.item(4);
+
+                    exchangeRateValue = el.getTextContent();
+
+                    }
+                    catch (Exception e) {
+
+                    }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            Toast.makeText(getApplicationContext(), "Exchange Rate Updated: " + exchangeRateValue + " CAD in 1 US$", Toast.LENGTH_SHORT).show();
+            exchangeRateUSCan = Double.parseDouble(exchangeRateValue);
+            exchangeRate.setText(exchangeRateValue);
+        }
+    }
+
 }
