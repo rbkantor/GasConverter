@@ -3,7 +3,6 @@ package com.reubenk.gasconverter;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -140,18 +139,11 @@ public class MainActivity extends Activity {
             try {
                     URL url = new URL("http://www.bankofcanada.ca/stats/assets/xml/noon-five-day.xml");
 
-                    Log.i(LOG_TAG, "bb");
                     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
                     DocumentBuilder db = dbf.newDocumentBuilder();
-                Log.i(LOG_TAG, "bb1e");
                     Document doc = db.parse(new InputSource(url.openStream()));
-                Log.i(LOG_TAG, "bb2");
                     doc.getDocumentElement().normalize();
-                Log.i(LOG_TAG, "bb3");
-
                     NodeList nodeList = doc.getElementsByTagName("Observation_data");
-                Log.i(LOG_TAG, "length = " + Integer.toString(nodeList.getLength()));
-
                     Element el = (Element)nodeList.item(4);
 
                     exchangeRateValue = el.getTextContent();
