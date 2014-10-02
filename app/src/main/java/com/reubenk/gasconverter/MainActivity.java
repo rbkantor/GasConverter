@@ -1,8 +1,13 @@
 package com.reubenk.gasconverter;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,11 +44,37 @@ public class MainActivity extends Activity {
         tv = (TextView) findViewById(R.id.resultView);
         et = (EditText) findViewById(R.id.editText);
         exchangeRate = (TextView) findViewById(R.id.exchangeRate);
-
         et.setText("1.30");
         exchangeRate.setText(String.valueOf(exchangeRateUSCan));
+
+        try {
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String priceValue = sharedPref.getString("value", "1.30");
+        String exchangeRateValue = sharedPref.getString("exchange", "1.1");
+
+            exchangeRateUSCan = Double.parseDouble(exchangeRateValue);
+            et.setText(priceValue);
+            exchangeRate.setText(String.valueOf(exchangeRateUSCan));
+        } catch (Exception ex) {
+
+        }
     }
 
+
+    public void onDestroy() {
+
+
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("value", et.getText().toString());
+        editor.putString("exchange", exchangeRate.getText().toString());
+        editor.commit();
+
+        super.onDestroy();
+
+
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -109,6 +140,7 @@ public class MainActivity extends Activity {
         double price = Double.parseDouble(et.getText().toString());
         price += 0.01;
         et.setText(String.format("%.2f", price));
+
     }
 
     public void BtnMnsClick(View v)
@@ -123,6 +155,23 @@ public class MainActivity extends Activity {
         //intent.addCategory(Intent.CATEGORY_HOME);
         //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         //startActivity(intent);
+
+        ConnectivityManager conMgr = (ConnectivityManager) getApplicationContext()
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo i = conMgr.getActiveNetworkInfo();
+        if (i == null) {
+            Toast.makeText(getApplicationContext(), "No internet...", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (!i.isConnected()) {
+            Toast.makeText(getApplicationContext(), "Not connected internet...", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (!i.isAvailable()) {
+            Toast.makeText(getApplicationContext(), "Not available internet...", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         mt = new MyTask();
         mt.execute();
     }
