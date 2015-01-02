@@ -11,6 +11,7 @@ import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -135,19 +136,22 @@ public class MainActivity extends Activity {
         }
     }
 
-    public void BtnPlsClick(View v)
+    public void BtnPlsMnsClick(View v)
     {
-        double price = Double.parseDouble(et.getText().toString());
-        price += 0.01;
-        et.setText(String.format("%.2f", price));
-
-    }
-
-    public void BtnMnsClick(View v)
-    {
-        double price = Double.parseDouble(et.getText().toString());
-        price -= 0.01;
-        et.setText(String.format("%.2f", price));
+        Button btn = (Button)v;
+        try {
+            double price = Double.parseDouble(et.getText().toString());
+            if (btn.getText().equals("+")) {
+                price += 0.01;
+            }
+            else
+            {
+                price -= 0.01;
+            }
+            et.setText(String.format("%.2f", price));
+        }
+        catch (Exception ex) {
+        }
     }
 
     public void exchangeBtnClick(View v) {
